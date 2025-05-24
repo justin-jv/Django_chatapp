@@ -1,0 +1,10 @@
+<h2>Welcome {{ request.user.username }}</h2>
+<h3>Your Groups</h3>
+<ul>
+    {% for group in groups %}
+        <li><a href="{% url 'group_chat' group.id %}">{{ group.name }}</a></li>
+    {% empty %}
+        <li>You are not in any groups.</li>
+    {% endfor %}
+</ul>
+<a href="{% url 'chat_home' %}">← Back to Private Chats</a>

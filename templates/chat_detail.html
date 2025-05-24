@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat with {{ other_user.username }}</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const username = "{{ request.user.username }}";
+            const otherUsername = "{{ other_user.username }}";
+
+            const chatSocket = new WebSocket(
+                'ws://' + window.location.host +
+                '/ws/chat/' + otherUsername + '/'
+            );
+
+            chatSocket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                const chatLog = document.getElementById('chat-log');
+                const messageElem = document.createElement('p');
+                if(data.sender === username){
+                    messageElem.innerHTML = `<b>You:</b> ${data.message}`;
+                } else {
+                    messageElem.innerHTML = `<b>${data.sender}:</b> ${data.message}`;
+                }
+                chatLog.appendChild(messageElem);
+                chatLog.scrollTop = chatLog.scrollHeight;
+            };
+
+            chatSocket.onclose = function(e) {
+                console.error('Chat socket closed unexpectedly', e);
+            };
+
+            document.getElementById('chat-message-input').focus();
+            document.getElementById('chat-message-input').onkeyup = function(e) {
+                if(e.keyCode === 13) {  // enter, send message
+                    document.getElementById('chat-message-submit').click();
+                }
+            };
+
+            document.getElementById('chat-message-submit').onclick = function(e) {
+                const messageInputDom = document.getElementById('chat-message-input');
+                const message = messageInputDom.value;
+                if(message.trim() === '') return;
+                chatSocket.send(JSON.stringify({
+                    'message': message
+                }));
+                messageInputDom.value = '';
+            };
+        });
+    </script>
+</head>
+<body>
+    <h2>Chat with {{ other_user.username }}</h2>
+    <div id="chat-log" style="height:300px; overflow-y:scroll; border:1px solid #ccc; padding:10px;">
+    </div>
+    <input id="chat-message-input" type="text" size="100" autocomplete="off" placeholder="Type a message..." />
+    <button id="chat-message-submit">Send</button>
+</body>
+</html>

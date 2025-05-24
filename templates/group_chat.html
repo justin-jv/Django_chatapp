@@ -1,0 +1,17 @@
+<h2>Group: {{ group.name }}</h2>
+<a href="{% url 'group_list' %}">← Back to Groups</a>
+<hr>
+
+<div style="border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll;">
+    {% for msg in messages %}
+        <p><strong>{{ msg.sender.username }}:</strong> {{ msg.message }}</p>
+    {% empty %}
+        <p>No messages yet.</p>
+    {% endfor %}
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    <input type="text" name="message" placeholder="Type your message..." required>
+    <button type="submit">Send</button>
+</form>
